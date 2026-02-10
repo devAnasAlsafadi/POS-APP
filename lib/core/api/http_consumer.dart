@@ -1,53 +1,94 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../errors/exceptions.dart';
-import 'api_consumer.dart';
+  import 'dart:convert';
+  import 'package:http/http.dart' as http;
+  import 'package:pos_wiz_tech/core/api/end_points.dart';
+import 'package:pos_wiz_tech/features/auth/data/data_source/auth_local_data_source.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+  import '../errors/exceptions.dart';
+  import 'api_consumer.dart';
 
-class HttpConsumer extends ApiConsumer {
-  final http.Client client;
-  final String baseUrl = "https://your-api-url.com/"; // ضع الرابط الأساسي هنا
+  class HttpConsumer extends ApiConsumer {
+    final http.Client client;
+    final SharedPreferences sharedPreferences;
 
-  HttpConsumer({required this.client});
+    HttpConsumer({required this.client, required this.sharedPreferences});
 
-  @override
-  Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
-    final uri = Uri.parse("$baseUrl$path").replace(queryParameters: queryParameters);
+    Map<String, String> _getHeaders() {
+      final token = sharedPreferences.getString("CACHED_TOKEN");
 
-    try {
-      final response = await client.get(uri, headers: {
+      return {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-      });
-      return _handleResponse(response);
-    } catch (e) {
-      throw ServerException(message: "Connection Error: ${e.toString()}");
+        if (token != null) 'Authorization': 'Bearer $token',
+      };
+    }
+
+
+    @override
+    Future<dynamic> patch(String path, {Object? body, Map<String, dynamic>? queryParameters}) async {
+      final uri = Uri.parse("${EndPoints.baseUrl}$path").replace(queryParameters: queryParameters);
+
+      try {
+        final response = await client.patch(
+          uri,
+          body: jsonEncode(body),
+          headers: _getHeaders(),
+        );
+
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ServerException) rethrow;
+        throw ServerException(message: "Connection Error: ${e.toString()}");
+      }
+    }
+    
+    @override
+    Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {
+      final uri = Uri.parse("${EndPoints.baseUrl}$path").replace(queryParameters: queryParameters);
+
+      try {
+        final response = await client.get(uri, headers: _getHeaders());
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ServerException) rethrow;
+        throw ServerException(message: "Connection Error: ${e.toString()}");
+      }
+    }
+
+    @override
+    Future<dynamic> post(String path, {Object? body, Map<String, dynamic>? queryParameters}) async {
+      final uri = Uri.parse("${EndPoints.baseUrl}$path").replace(queryParameters: queryParameters);
+
+      try {
+        final response = await client.post(
+          uri,
+          body: jsonEncode(body),
+            headers: _getHeaders(),
+        );
+        return _handleResponse(response);
+      } catch (e) {
+        if (e is ServerException) rethrow;
+        throw ServerException(message: "Connection Error: ${e.toString()}");
+      }
+    }
+
+    dynamic _handleResponse(http.Response response) {
+      try {
+        final responseBody = jsonDecode(response.body);
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          if (responseBody['status'] == true) {
+            return responseBody;
+          } else {
+            throw ServerException(message: responseBody['message'] ?? "Operation Failed");
+          }
+        } else {
+          throw ServerException(
+              message: responseBody['message'] ?? "Server Error: ${response.statusCode}"
+          );
+        }
+      } catch (e) {
+        if (e is ServerException) rethrow;
+        throw ServerException(message: "Invalid response format from server");
+      }
     }
   }
-
-  @override
-  Future<dynamic> post(String path, {Object? body, Map<String, dynamic>? queryParameters}) async {
-    final uri = Uri.parse("$baseUrl$path").replace(queryParameters: queryParameters);
-
-    try {
-      final response = await client.post(
-        uri,
-        body: jsonEncode(body),
-        headers: {'Content-Type': 'application/json'},
-      );
-      return _handleResponse(response);
-    } catch (e) {
-      throw ServerException(message: "Connection Error: ${e.toString()}");
-    }
-  }
-
-  // ميثود خاصة لفحص الـ Status Code
-  dynamic _handleResponse(http.Response response) {
-    final responseBody = jsonDecode(response.body);
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return responseBody;
-    } else {
-      // هان بنطلع الرسالة اللي جاية من السيرفر إذا في خطأ
-      throw ServerException(message: responseBody['message'] ?? "Status Code: ${response.statusCode}");
-    }
-  }
-}

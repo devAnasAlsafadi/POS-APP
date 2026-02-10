@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_wiz_tech/core/theme/app_color.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/blocs/floor_map_bloc.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen_controller.dart';
@@ -20,7 +21,8 @@ class _FloorMapScreenState extends State<FloorMapScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FloorMapBloc>().add(GetTablesEvent());
+    context.read<FloorMapBloc>().add(const FetchTablesEvent());
+
   }
 
 
@@ -33,27 +35,39 @@ class _FloorMapScreenState extends State<FloorMapScreen> {
         child: Column(
           children: [
             const FloorMapHeader(),
+
             Expanded(
               child: BlocBuilder<FloorMapBloc, FloorMapState>(
                 builder: (context, state) {
-                  if (state is FloorMapLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is FloorMapLoaded) {
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: ResponsiveBreakpoints.of(context).isMobile ? 2 : 4,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                          childAspectRatio: 0.85,
-                      ),
-                      itemCount: state.tables.length,
-                      itemBuilder: (context, index) {
-                        return TableCard(table: state.tables[index],controller: widget.mainController, update: () => widget.mainController.refreshApp());
-                      },
-                    );
-                  } else {
-                    return const Center(child: Text("Error loading tables", style: TextStyle(color: Colors.white)));
+                  if(state.isLoading){
+                    return  Center(child: CircularProgressIndicator(color: AppColors.primary));
                   }
+                  if (state.errorMessage != null) {
+                    return Center(child: Text(state.errorMessage!, style: const TextStyle(color: Colors.red)));
+                  }
+                  if (state.filteredTables.isEmpty) {
+                    return const Center(child: Text("لا يوجد طاولات في هذا الدور", style: TextStyle(color: Colors.white)));
+                  }
+
+                  return GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+
+                    crossAxisCount: ResponsiveBreakpoints.of(context).isMobile ? 2 : 4,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.85,
+
+                  ),
+                      itemCount: state.filteredTables.length,
+                    itemBuilder: (context, index) {
+                      final table = state.filteredTables[index];
+                      return TableCard(
+                        table: table,
+                        controller: widget.mainController,
+                        update: () => widget.mainController.refreshApp(),
+                      );
+                    },
+                  );
+
                 },
               ),
             ),

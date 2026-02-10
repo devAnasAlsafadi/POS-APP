@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pos_wiz_tech/core/developer.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen_controller.dart';
-
 import '../../../../core/enum/table_status.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_text_style.dart';
@@ -12,99 +10,121 @@ class TableCard extends StatelessWidget {
   final MainScreenController controller;
   final Function update;
 
-  const   TableCard({super.key, required this.table, required this.controller, required this.update});
+  const TableCard({
+    super.key,
+    required this.table,
+    required this.controller,
+    required this.update,
+  });
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = _getStatusColor(table.status);
-    bool isWaiting = table.status == TableStatus.waiting;
+    final TableStatus currentStatus = _mapStringToStatus(table.status);
+    final Color statusColor = _getStatusColor(currentStatus);
 
     return GestureDetector(
       onTap: () {
-        if(table.status == TableStatus.available) {
-          AppLogger.info("Tabled Clicked");
-          controller.goToOrderDetails(table,update);
-        } else {
-          // Handle viewing details for occupied/reserved tables
-        }
+        controller.goToOrderDetails(table, update);
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: statusColor.withValues(alpha: 0.5), width: 2),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ]
-        ),
-        padding: const EdgeInsets.all(12),
-        child: Stack(
-          children: [
-            Center(
-              child: Opacity(
-                opacity: 0.05,
-                child: Icon(Icons.table_bar, size: 60, color: Colors.white),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(table.tableNumber, style: AppTextStyles.h2.copyWith(fontSize: 24,fontWeight: FontWeight.w800)),
-                      Row(
-                        children: [
-                          Icon(Icons.people_alt_outlined, size: 16, color: Colors.grey[400]),
-                          const SizedBox(width: 4),
-                          Text('${table.chairCount}', style: TextStyle(color: Colors.grey[400])),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(table.status.name.toUpperCase(), style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
-                  const Spacer(),
-                  if (isWaiting) _buildTimer(statusColor),
-                  if (table.status == TableStatus.billing || table.status == TableStatus.dining)
-                    _buildTotalAmount(statusColor),
-                  if (table.status == TableStatus.available)
-                    const Text("Ready", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-            )
-          ],
-        )
-      ),
+      child: _buildStaticContainer(statusColor, currentStatus),
     );
   }
 
-
-
-
-  Widget _buildTimer(Color color) {
+  Widget _buildStaticContainer(Color color, TableStatus status) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      decoration: _buildDecoration(color, 1.0),
+      child: _buildCardContent(color, status),
+    );
+  }
+
+  Widget _buildPulsingContainer(Color color, TableStatus status) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.2, end: 1.0),
+      duration: const Duration(milliseconds: 1000),
+      builder: (context, opacity, child) {
+        return Container(
+          decoration: _buildDecoration(color, opacity),
+          child: _buildCardContent(color, status),
+        );
+      },
+      onEnd: () {},
+    );
+  }
+
+  BoxDecoration _buildDecoration(Color color, double opacity) {
+    return BoxDecoration(
+      color: AppColors.cardBackground,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: color.withValues(alpha: opacity), width: 2),
+      boxShadow: [
+        BoxShadow(
+          color: color.withValues(alpha: opacity * 0.2),
+          blurRadius: 8,
+          spreadRadius: 1,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCardContent(Color color, TableStatus status) {
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.access_time_filled, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            "09:08",
-            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "0${table.id}",
+                style: AppTextStyles.h2.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.people_alt_outlined,
+                    size: 16,
+                    color: AppColors.grey,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${table.capacity}',
+                    style: const TextStyle(color: AppColors.grey),
+                  ),
+                ],
+              ),
+            ],
           ),
+          const SizedBox(height: 8),
+          Text(
+            status.name.toUpperCase(),
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const Spacer(),
+          if (status == TableStatus.billing || status == TableStatus.dining)
+            _buildTotalAmount(color),
+          if (status == TableStatus.available)
+            const Text(
+              "Ready",
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
+          if (status == TableStatus.waiting)
+            Text(
+              "WAITING FOR ORDER...",
+              style: TextStyle(
+                color: color.withValues(alpha: 0.7),
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
         ],
       ),
     );
@@ -114,13 +134,9 @@ class TableCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "TOTAL",
-          style: TextStyle(color: Colors.grey, fontSize: 10, letterSpacing: 1.1),
-        ),
-        const SizedBox(height: 2),
+        const Text("TOTAL", style: TextStyle(color: Colors.grey, fontSize: 9)),
         Text(
-          "\$${table.totalAmount?.toStringAsFixed(2) ?? "0.00"}",
+          "\$${table.currentOrderId != null ? '120.50' : '0.00'}", // مثال مؤقت للمبلغ
           style: TextStyle(
             color: color,
             fontSize: 16,
@@ -131,14 +147,37 @@ class TableCard extends StatelessWidget {
     );
   }
 
+  TableStatus _mapStringToStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'available':
+        return TableStatus.available;
+      case 'occupied':
+        return TableStatus.occupied;
+      case 'reserved':
+        return TableStatus.reserved;
+      case 'dining':
+        return TableStatus.dining;
+      case 'billing':
+        return TableStatus.billing;
+      default:
+        return TableStatus.available;
+    }
+  }
 
   Color _getStatusColor(TableStatus status) {
     switch (status) {
-      case TableStatus.available: return AppColors.available;
-      case TableStatus.waiting: return AppColors.waiting;
-      case TableStatus.dining: return AppColors.dining;
-      case TableStatus.billing: return AppColors.billing;
-      case TableStatus.reserved: return AppColors.reserved;
+      case TableStatus.available:
+        return AppColors.available;
+      case TableStatus.occupied:
+        return AppColors.occupied;
+      case TableStatus.waiting:
+        return AppColors.dining;
+      case TableStatus.dining:
+        return AppColors.dining;
+      case TableStatus.billing:
+        return AppColors.billing;
+      case TableStatus.reserved:
+        return AppColors.reserved;
     }
   }
 }

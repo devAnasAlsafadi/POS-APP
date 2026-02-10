@@ -55,7 +55,7 @@ class AppTextStyles {
   static const TextStyle timerStyle = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
-    color: AppColors.waiting,
+    color: AppColors.dining,
     fontFamily: 'monospace',
   );
 
@@ -66,6 +66,12 @@ class AppTextStyles {
     color: AppColors.textSecondary,
   );
 
+
+  static const TextStyle smallText = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textSecondary,
+  );
 
 
   static const TextStyle appBarTitle = TextStyle(

@@ -1,51 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_text_style.dart';
+import '../../domain/entities/location_entity.dart';
+import '../blocs/floor_map_bloc.dart';
 
 class FloorMapHeader extends StatelessWidget {
   const FloorMapHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Floor Map", style: AppTextStyles.h3.copyWith(fontSize: 28,color: AppColors.white)),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E1E),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[800]!),
-              ),
-              child: Row(
+    return BlocBuilder<FloorMapBloc, FloorMapState>(
+
+        builder:(context, state) {
+          final availableCount = state.allTables.where((t) => t.status == 'available').length;
+          final occupiedCount = state.allTables.where((element) =>  element.status == 'occupied',).length;
+          final diningCount = state.allTables.where((t) => t.status == 'dining').length;
+          print('occupiedCount : ${occupiedCount} :::availableCount  ${availableCount} diningCount : ${diningCount}');
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("All Tables", style: TextStyle(color: Colors.white)),
-                  const SizedBox(width: 10),
-                  Icon(Icons.keyboard_arrow_down, color: Colors.orange[400]),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Floor Map",
+                          style: AppTextStyles.h3.copyWith(fontSize: 28, color: AppColors.white)),
+                      const SizedBox(height: 4),
+                      Text(
+                        "$occupiedCount Occupied • $availableCount Available $diningCount  Dining",
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ],
+                  ),
+
+                  _buildLocationDropdown(context, state),
                 ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Row(
-          children: [
-            _buildStatusIndicator("Available", Colors.green),
-            _buildStatusIndicator("Waiting", Colors.yellow),
-            _buildStatusIndicator("Dining", Colors.red),
-            _buildStatusIndicator("Billing", Colors.orange),
-            _buildStatusIndicator("Reserved", Colors.blue),
-          ],
-        ),
-        const Divider(color: Colors.grey, height: 40, thickness: 0.2),
-      ],
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildStatusIndicator("Available", Colors.green),
+                    _buildStatusIndicator("Waiting", Colors.yellow),
+                    _buildStatusIndicator("Dining", Colors.red),
+                    _buildStatusIndicator("Billing", Colors.orange),
+                    _buildStatusIndicator("Reserved", Colors.blue),
+                  ],
+                ),
+              ),
+              const Divider(color: Colors.grey, height: 40, thickness: 0.2),
+            ],
+          );
+        },
     );
   }
-
+  Widget _buildLocationDropdown(BuildContext context, FloorMapState state) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E1E),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: Colors.orange.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<LocationEntity>(
+          value: state.selectedLocation,
+          dropdownColor: const Color(0xFF252525),
+          icon: const Icon(Icons.unfold_more_rounded, color: Colors.orange),
+          hint: const Text(
+            "Select Floor",
+            style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          borderRadius: BorderRadius.circular(15),
+          items: state.locations.map((location) {
+            return DropdownMenuItem(
+              value: location,
+              child: Row(
+                children: [
+                  const Icon(Icons.layers_outlined, size: 18, color: Colors.orange),
+                  const SizedBox(width: 10),
+                  Text(
+                    location.locationName,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (newLocation) {
+            if (newLocation != null) {
+              context.read<FloorMapBloc>().add(ChangeLocationEvent(newLocation));
+            }
+          },
+        ),
+      ),
+    );
+  }
   Widget _buildStatusIndicator(String label, Color color) {
     return Padding(
       padding: const EdgeInsets.only(right: 20),
@@ -58,4 +124,6 @@ class FloorMapHeader extends StatelessWidget {
       ),
     );
   }
+
 }
+

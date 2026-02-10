@@ -1,9 +1,8 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_wiz_tech/core/blocs/connectivity/connectivity_bloc.dart';
-import 'package:pos_wiz_tech/core/widgets/offline_screen.dart';
+import 'package:pos_wiz_tech/features/auth/presentation/blocs/auth_bloc/auth_bloc.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/blocs/floor_map_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'core/di/injection_container.dart';
@@ -14,6 +13,8 @@ import 'core/theme/theme.dart';
 
 class PosApp extends StatefulWidget {
   const PosApp({super.key,});
+
+
 
   @override
   State<PosApp> createState() => _PosAppState();
@@ -26,7 +27,8 @@ class _PosAppState extends State<PosApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => sl<ConnectivityBloc>(),),
-        BlocProvider(create: (context) => sl<FloorMapBloc>(),)
+        BlocProvider(create: (context) => sl<FloorMapBloc>(),),
+        BlocProvider(create: (context) => sl<AuthBloc>(),)
       ],
       child:MaterialApp(
         title: 'FineDine POS',
@@ -54,12 +56,12 @@ class _PosAppState extends State<PosApp> {
                   //   const OfflineScreen(),
                 ],
               );
-            },),
+             },
+            ),
           );
         },
       ),
     );
   }
-
-
 }
+

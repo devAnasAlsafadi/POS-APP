@@ -1,46 +1,46 @@
 import 'package:equatable/equatable.dart';
-import 'package:pos_wiz_tech/core/enum/table_status.dart';
+
+import 'location_entity.dart';
 
 class TableEntity extends Equatable {
-  final String id;
-  final String tableNumber;
-  final String floorId;
-  final int chairCount;
-  final TableStatus status;
-  final double? totalAmount;
-  final List<TableOrderEntity>? orders;
-  final DateTime? reservationTime;
-  final bool isReserved;
+  final int id;
+  final int order;
+  final int? locationId;
+  final int capacity;
+  final bool isAvailable;
+  final String status;
+  final int? currentOrderId;
+  final int? assignedWaiterId;
+  final String? currentOrder;
+  final String? assignedWaiter;
+  final LocationEntity? location;
 
-
-  TableEntity({
+  const TableEntity({
     required this.id,
-    required this.tableNumber,
-    required this.floorId,
-    required this.chairCount,
+    required this.order,
+    this.locationId,
+    required this.capacity,
+    required this.isAvailable,
     required this.status,
-    this.totalAmount,
-    this.orders,
-    this.reservationTime,
-    this.isReserved = false,
+    this.currentOrderId,
+    this.assignedWaiterId,
+    this.currentOrder,
+    this.assignedWaiter,
+    this.location,
   });
 
   @override
-  List<Object?> get props => [id, tableNumber, status, totalAmount, isReserved,orders,floorId , chairCount,reservationTime];
-
-}
-
-class TableOrderEntity extends Equatable {
-  final String orderId;
-  final DateTime orderTime;
-  final List<String> items;
-
-  const TableOrderEntity({
-    required this.orderId,
-    required this.orderTime,
-    required this.items,
-  });
-
-  @override
-  List<Object?> get props => [orderId, orderTime,items];
+  List<Object?> get props => [
+    id,
+    order,
+    locationId,
+    capacity,
+    isAvailable,
+    status,
+    currentOrderId,
+    assignedWaiterId,
+    currentOrder,
+    assignedWaiter,
+    location,
+  ];
 }

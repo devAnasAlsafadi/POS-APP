@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:pos_wiz_tech/features/floor_map/domain/entities/table_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_wiz_tech/core/routes/route_name.dart';
 import 'package:pos_wiz_tech/features/auth/presentation/screens/splash_screen/splash_screen.dart';
@@ -8,7 +9,7 @@ import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen_controller.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/orders_screen/orders_screen.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/settings_screen/settings_screen.dart';
-import 'package:pos_wiz_tech/features/orders/presentation/screens/create_order_screen.dart';
+import 'package:pos_wiz_tech/features/products/presentation/screens/create_order_screen/create_order_screen.dart';
 
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 
@@ -33,7 +34,8 @@ class AppRouter {
       case RouteNames.ordersScreen:
         return MaterialPageRoute(builder: (context) => OrdersScreen());
       case RouteNames.createOrderScreen:
-        return MaterialPageRoute(builder: (context) => CreateOrderScreen());
+        final table = settings.arguments as TableEntity; 
+        return MaterialPageRoute(builder: (context) => CreateOrderScreen(table: table));
 
       default:
         return MaterialPageRoute(

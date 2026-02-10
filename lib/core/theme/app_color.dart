@@ -27,8 +27,8 @@ class AppColors {
   static const Color primaryLight = Color(0xFFFFB347);
 
   static const Color available = Color(0xFF00C853);
-  static const Color waiting = Color(0xFFFFC107);
-  static const Color dining = Color(0xFFE91E63);
+  static const Color dining = Color(0xFFFFC107);
+  static const Color occupied = Color(0xFFE91E63);
   static const Color billing = Color(0xFFFB8C00);
   static const Color reserved = Color(0xFF2196F3);
   static const Color cardBackground = Color(0xFF1A1A1A);
@@ -40,4 +40,6 @@ class AppColors {
   static const Color border = Color(0xFF2C2C2C);
   static const Color error = Color(0xFFFF5252);
   static const Color success = Color(0xFF00C853);
+
+  static const Color darkGrey = Color(0xFF1A1A1A);
 }

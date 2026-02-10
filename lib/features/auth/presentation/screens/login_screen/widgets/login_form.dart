@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_wiz_tech/core/routes/navigation_manager.dart';
 import 'package:pos_wiz_tech/core/routes/route_name.dart';
 import '../../../../../../core/enum/snakebar_tybe.dart';
@@ -8,6 +9,7 @@ import '../../../../../../core/utils/app_snackbar.dart';
 import '../../../../../../core/utils/validators.dart';
 import '../../../../../../core/widgets/my_button.dart';
 import '../../../../../../core/widgets/my_text_field.dart';
+import '../../../blocs/auth_bloc/auth_bloc.dart';
 import '../login_screen_controller.dart';
 
 class LoginForm extends StatefulWidget {
@@ -65,33 +67,49 @@ class _LoginFormState extends State<LoginForm> {
 
           const SizedBox(height: 30),
 
-          CustomButton(
-            text: "Sign In",
-            icon: Icons.login,
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
+          // Inside _LoginFormState build method
+          BlocConsumer<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is LoginSuccess) {
                 AppSnackBar.show(
-                  type: SnackBarType.success,
                   context,
+                  type: SnackBarType.success,
                   title: "Login Successful",
-                  message: "Welcome back waiter!"
+                  message: "Welcome back, ${state.user.name}!",
                 );
                 NavigationManger.navigateAndReplace(context, RouteNames.mainScreen);
-              }else{
+              } else if (state is LoginFailure) {
                 AppSnackBar.show(
-                  type: SnackBarType.error,
                   context,
-                  title: "Missing Credentials",
-                  message: "Please enter both email and password.",
+                  type: SnackBarType.error,
+                  title: "Login Failed",
+                  message: state.message,
                 );
               }
             },
-          ),
+            builder: (context, state) {
+              return CustomButton(
+                text: state is LoginLoading ? "Signing in..." : "Sign In",
+                icon: state is LoginLoading ? null : Icons.login,
+                onPressed: state is LoginLoading ? null : _onLoginPressed,
+              );
+            },
+          )
         ],
       ),
     );
   }
 
+  void _onLoginPressed() {
+    if (_formKey.currentState!.validate()) {
+      context.read<AuthBloc>().add(
+        LoginSubmitted(
+          email: widget.controller.emailController.text,
+          password: widget.controller.passwordController.text,
+        ),
+      );
+    }
+  }
   Widget _buildLabel(String label) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),

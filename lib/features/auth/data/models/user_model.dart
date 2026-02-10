@@ -1,4 +1,6 @@
-class UserModel {
+import 'package:pos_wiz_tech/features/auth/domain/entities/user_entity.dart';
+
+class UserModel extends UserEntity{
   final int id;
   final String name;
   final String email;
@@ -6,7 +8,7 @@ class UserModel {
   final String? mobile;
   final String? photoId;
   final String? photo;
-   String? password;
+   String?  password;
   UserModel({
     required this.id,
     required this.name,
@@ -15,18 +17,35 @@ class UserModel {
     this.mobile,
     this.photoId,
     this.photo,
-  });
+  }) : super(id: id, name: name, email: email, token: token, mobile: mobile, photoId: photoId, photo: photo);
+
+  UserEntity toEntity() {
+    return UserEntity(
+      id: id,
+      name: name,
+      email: email,
+      token: token,
+      mobile: mobile,
+      photoId: photoId,
+      photo: photo,
+    );
+  }
+
 
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+
+    final data = json['data'] as Map<String, dynamic>? ?? json;
+    final userData = data['user'] as Map<String, dynamic>? ?? {};
+
     return UserModel(
-      id: json['id'] as int,
-      name: json['name'] as String,
-      email: json['email'] as String,
-      token: json['token'] as String,
-      mobile: json['mobile'] as String?,
-      photoId: json['photo_id'] as String?,
-      photo: json['photo'] as String?,
+      id: userData['id'] ?? 0,
+      name: userData['name'] ?? '',
+      email: userData['email'] ?? '',
+      token: data['token'] ?? '',
+      mobile: userData['mobile']?.toString(), // Safely convert to string if not null
+      photoId: userData['photo_id']?.toString(),
+      photo: userData['photo']?.toString(),
     );
   }
 
