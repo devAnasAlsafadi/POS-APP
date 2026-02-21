@@ -26,7 +26,6 @@ class OrderHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header: Status and Estimated Time
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -76,7 +75,6 @@ class OrderHistoryCard extends StatelessWidget {
 
           const Divider(color: Colors.white10, thickness: 1),
 
-          // Subtotal Section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

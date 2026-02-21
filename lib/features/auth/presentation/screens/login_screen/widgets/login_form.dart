@@ -67,15 +67,14 @@ class _LoginFormState extends State<LoginForm> {
 
           const SizedBox(height: 30),
 
-          // Inside _LoginFormState build method
           BlocConsumer<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is LoginSuccess) {
                 AppSnackBar.show(
                   context,
                   type: SnackBarType.success,
-                  title: "Login Successful",
-                  message: "Welcome back, ${state.user.name}!",
+                  title: state.user.message,
+                  message: "Welcome back, ${state.user.data!.name}!",
                 );
                 NavigationManger.navigateAndReplace(context, RouteNames.mainScreen);
               } else if (state is LoginFailure) {

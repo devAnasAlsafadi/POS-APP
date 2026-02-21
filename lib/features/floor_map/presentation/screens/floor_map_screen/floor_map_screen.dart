@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_wiz_tech/core/developer.dart';
+import 'package:pos_wiz_tech/core/enum/snakebar_tybe.dart';
 import 'package:pos_wiz_tech/core/theme/app_color.dart';
+import 'package:pos_wiz_tech/core/utils/app_snackbar.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/blocs/floor_map_bloc.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen_controller.dart';
+import 'package:pos_wiz_tech/features/reservations/presentation/blocs/reservations_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../widgets/floor_map_header.dart';
@@ -21,57 +25,64 @@ class _FloorMapScreenState extends State<FloorMapScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FloorMapBloc>().add(const FetchTablesEvent());
-
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          children: [
-            const FloorMapHeader(),
+    return BlocListener<ReservationsBloc,ReservationsState>(
+      listener: (context, state) {
+        if (state is ReservationOperationSuccess) {
+          AppSnackBar.show(context, message: state.message, type: SnackBarType.success);
+          context.read<FloorMapBloc>().add(const FetchTablesEvent());
+          context.read<ReservationsBloc>().add(GetTodayReservationsEvent());
+        }
 
-            Expanded(
-              child: BlocBuilder<FloorMapBloc, FloorMapState>(
-                builder: (context, state) {
-                  if(state.isLoading){
-                    return  Center(child: CircularProgressIndicator(color: AppColors.primary));
-                  }
-                  if (state.errorMessage != null) {
-                    return Center(child: Text(state.errorMessage!, style: const TextStyle(color: Colors.red)));
-                  }
-                  if (state.filteredTables.isEmpty) {
-                    return const Center(child: Text("لا يوجد طاولات في هذا الدور", style: TextStyle(color: Colors.white)));
-                  }
+        if (state is ReservationsError) {
+          AppSnackBar.show(context, message: state.message, type: SnackBarType.error);
+        }
+      },
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            children: [
+              const FloorMapHeader(),
+              Expanded(
+                child: BlocBuilder<FloorMapBloc, FloorMapState>(
+                  builder: (context, state) {
+                    AppLogger.error("state.filteredTables.length is : ${state.filteredTables.length}");
+                    if(state.isLoading){
+                      return  Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    }
+                    if (state.errorMessage != null) {
+                      return Center(child: Text(state.errorMessage!, style: const TextStyle(color: Colors.red)));
+                    }
+                    if (state.filteredTables.isEmpty) {
+                      return const Center(child: Text("لا يوجد طاولات في هذا الدور", style: TextStyle(color: Colors.white)));
+                    }
 
-                  return GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-
-                    crossAxisCount: ResponsiveBreakpoints.of(context).isMobile ? 2 : 4,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.85,
-
-                  ),
+                    return GridView.builder(gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: ResponsiveBreakpoints.of(context).isMobile ? 2 : 4,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.85,
+                    ),
                       itemCount: state.filteredTables.length,
-                    itemBuilder: (context, index) {
-                      final table = state.filteredTables[index];
-                      return TableCard(
-                        table: table,
-                        controller: widget.mainController,
-                        update: () => widget.mainController.refreshApp(),
-                      );
-                    },
-                  );
-
-                },
+                      itemBuilder: (context, index) {
+                        final table = state.filteredTables[index];
+                        return TableCard(
+                          table: table,
+                          controller: widget.mainController,
+                          update: () => widget.mainController.refreshApp(),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

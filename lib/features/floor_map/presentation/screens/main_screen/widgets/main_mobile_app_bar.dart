@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pos_wiz_tech/core/di/injection_container.dart';
+import 'package:pos_wiz_tech/features/auth/domain/repositories/auth_repository.dart';
 
 import '../../../../../../core/theme/app_color.dart';
 import '../../../../../../core/theme/app_text_style.dart';
@@ -9,6 +11,8 @@ class MainMobileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final waiterName = sl<AuthRepository>().getUserName() ?? "Waiter";
+
     return AppBar(
       backgroundColor:AppColors.background,
       elevation: 0,
@@ -21,7 +25,7 @@ class MainMobileAppBar extends StatelessWidget implements PreferredSizeWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Sarah Johnson",
+              Text(waiterName,
                   style: AppTextStyles.appBarTitle),
               Text("FineDine POS",
                   style: AppTextStyles.appBarSubtitle),

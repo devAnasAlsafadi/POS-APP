@@ -14,10 +14,10 @@ class FloorMapHeader extends StatelessWidget {
     return BlocBuilder<FloorMapBloc, FloorMapState>(
 
         builder:(context, state) {
-          final availableCount = state.allTables.where((t) => t.status == 'available').length;
-          final occupiedCount = state.allTables.where((element) =>  element.status == 'occupied',).length;
-          final diningCount = state.allTables.where((t) => t.status == 'dining').length;
-          print('occupiedCount : ${occupiedCount} :::availableCount  ${availableCount} diningCount : ${diningCount}');
+          final availableCount = state.filteredTables.where((t) => t.status == 'available').length;
+          final occupiedCount = state.filteredTables.where((element) =>  element.status == 'occupied',).length;
+          final diningCount = state.filteredTables.where((t) => t.status == 'dining').length;
+          final billingCount = state.filteredTables.where((t) => t.status == 'billing').length;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,7 +32,7 @@ class FloorMapHeader extends StatelessWidget {
                           style: AppTextStyles.h3.copyWith(fontSize: 28, color: AppColors.white)),
                       const SizedBox(height: 4),
                       Text(
-                        "$occupiedCount Occupied • $availableCount Available $diningCount  Dining",
+                        "$occupiedCount Occupied •  $availableCount Available  $diningCount Dining  $billingCount Billing",
                         style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],
@@ -46,11 +46,11 @@ class FloorMapHeader extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildStatusIndicator("Available", Colors.green),
-                    _buildStatusIndicator("Waiting", Colors.yellow),
-                    _buildStatusIndicator("Dining", Colors.red),
-                    _buildStatusIndicator("Billing", Colors.orange),
-                    _buildStatusIndicator("Reserved", Colors.blue),
+                    _buildStatusIndicator("Available", AppColors.available),
+                    _buildStatusIndicator("Occupied", AppColors.occupied),
+                    _buildStatusIndicator("Dining", AppColors.dining),
+                    _buildStatusIndicator("Billing", AppColors.billing),
+                    _buildStatusIndicator("Reserved", AppColors.reserved),
                   ],
                 ),
               ),

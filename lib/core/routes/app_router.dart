@@ -9,7 +9,7 @@ import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/main_screen_controller.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/orders_screen/orders_screen.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/settings_screen/settings_screen.dart';
-import 'package:pos_wiz_tech/features/products/presentation/screens/create_order_screen/create_order_screen.dart';
+import 'package:pos_wiz_tech/features/orders/presentation/screens/create_order_screen/create_order_screen.dart';
 
 import '../../features/auth/presentation/screens/login_screen/login_screen.dart';
 

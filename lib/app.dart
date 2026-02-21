@@ -9,6 +9,7 @@ import 'core/di/injection_container.dart';
 import 'core/routes/app_router.dart';
 import 'core/routes/route_name.dart';
 import 'core/theme/theme.dart';
+import 'core/widgets/offline_screen.dart';
 
 
 class PosApp extends StatefulWidget {

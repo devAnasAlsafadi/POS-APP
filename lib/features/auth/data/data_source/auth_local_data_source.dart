@@ -4,7 +4,12 @@ abstract class AuthLocalDataSource {
   Future<void> cacheToken(String token);
   String? getToken();
   Future<void> clearCache();
+  Future<void> cacheUser(String name);
+  String? getUserName();
 }
+
+
+
 
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
@@ -25,5 +30,16 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearCache() async {
     await sharedPreferences.remove("CACHED_TOKEN");
+    await sharedPreferences.remove("CACHED_USER_NAME");
+  }
+
+  @override
+  Future<void> cacheUser(String name) async {
+    await sharedPreferences.setString("CACHED_USER_NAME", name);
+  }
+
+  @override
+  String? getUserName() {
+    return sharedPreferences.getString("CACHED_USER_NAME");
   }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../../../../core/routes/navigation_manager.dart';
-import '../../../../../core/routes/route_name.dart';
 
 class LoginScreenController {
   final passwordController = TextEditingController();

@@ -10,7 +10,7 @@ class AuthInitial extends AuthState {}
 class LoginLoading extends AuthState {}
 
 class LoginSuccess extends AuthState {
-  final UserEntity user;
+  final SuccessResponse<UserEntity> user;
   const LoginSuccess({required this.user});
   @override
   List<Object> get props => [user];

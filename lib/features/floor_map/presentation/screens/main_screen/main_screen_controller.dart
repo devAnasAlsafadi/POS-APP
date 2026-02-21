@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pos_wiz_tech/features/products/presentation/screens/create_order_screen/create_order_screen.dart';
-
+import 'package:pos_wiz_tech/features/orders/presentation/screens/create_order_screen/create_order_screen.dart';
+import '../../../../reservations/domain/entities/reservation_entity.dart';
 import 'package:pos_wiz_tech/features/floor_map/domain/entities/table_entity.dart';
 import '../alerts_screen/alerts_screen.dart';
 import '../floor_map_screen/floor_map_screen.dart';
@@ -20,10 +20,25 @@ class MainScreenController {
     selectedTable != null 
         ? CreateOrderScreen(
             key: ValueKey(selectedTable!.id),
-            table: selectedTable!
+            table: selectedTable!,
+            onNavigateBack: () {
+              selectedTable = null;
+              selectedIndex = 0;
+              if(onUpdate != null) onUpdate!();
+            },
           ) 
         : const Center(child: Text("No table selected")),
+
   ];
+
+  ReservationEntity? selectedReservation;
+
+  void goToReservationDetails(TableEntity table, ReservationEntity reservation, Function update) {
+    selectedTable = table;
+    selectedReservation = reservation;
+    selectedIndex = 5; // New index for ReservationDetail
+    if(onUpdate != null) onUpdate!();
+  }
 
 
   void goToOrderDetails(TableEntity table, Function update) {

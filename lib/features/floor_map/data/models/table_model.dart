@@ -1,3 +1,5 @@
+import 'package:pos_wiz_tech/features/auth/data/models/user_model.dart';
+import '../../../../features/orders/data/models/order_model.dart';
 import '../../domain/entities/table_entity.dart';
 import 'location_model.dart';
 
@@ -26,11 +28,32 @@ class TableModel extends TableEntity {
       status: json['status'] ?? 'available',
       currentOrderId: json['current_order_id'],
       assignedWaiterId: json['assigned_waiter_id'],
-      currentOrder: json['current_order']?.toString(),
-      assignedWaiter: json['assigned_waiter']?.toString(),
+      currentOrder: json['current_order'] != null && json['current_order'] is Map<String, dynamic>
+          ? OrderModel.fromJson(json['current_order'])
+          : null,
+      assignedWaiter: json['assigned_waiter'] != null && json['assigned_waiter'] is Map<String, dynamic>
+          ? UserModel.fromJson(json['assigned_waiter'])
+          : null,
       location: json['location'] != null
           ? LocationModel.fromJson(json['location'])
           : null,
+    );
+  }
+
+
+  TableEntity toEntity() {
+    return TableEntity(
+      id: id,
+      order: order,
+      locationId: locationId,
+      capacity: capacity,
+      isAvailable: isAvailable,
+      status: status,
+      currentOrderId: currentOrderId,
+      assignedWaiterId: assignedWaiterId,
+      currentOrder: currentOrder,
+      assignedWaiter: assignedWaiter,
+      location: location,
     );
   }
 }

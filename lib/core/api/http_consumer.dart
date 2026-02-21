@@ -73,8 +73,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
     dynamic _handleResponse(http.Response response) {
       try {
-        final responseBody = jsonDecode(response.body);
-
+        final dynamic responseBody = jsonDecode(response.body);
         if (response.statusCode >= 200 && response.statusCode < 300) {
           if (responseBody['status'] == true) {
             return responseBody;
@@ -82,13 +81,22 @@ import 'package:shared_preferences/shared_preferences.dart';
             throw ServerException(message: responseBody['message'] ?? "Operation Failed");
           }
         } else {
+          String errorMessage = "Something went wrong";
+          if (responseBody is Map) {
+            if (response.statusCode == 422 && responseBody['errors'] != null) {
+              final Map<String, dynamic> errors = responseBody['errors'];
+              errorMessage = errors.values.first[0].toString();
+            }else{
+              errorMessage = responseBody['message'] ?? "Error: ${response.statusCode}";
+            }
+          }
           throw ServerException(
-              message: responseBody['message'] ?? "Server Error: ${response.statusCode}"
+              message: throw ServerException(message: errorMessage)
           );
         }
       } catch (e) {
         if (e is ServerException) rethrow;
-        throw ServerException(message: "Invalid response format from server");
+        throw ServerException(message: "Error interpreting server response");
       }
     }
   }

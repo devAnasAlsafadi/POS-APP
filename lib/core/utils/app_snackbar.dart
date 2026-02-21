@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import '../../features/orders/presentation/screens/create_order_screen/widgets/order_success_dialog.dart';
 import '../enum/snakebar_tybe.dart';
 import '../theme/app_color.dart';
-import '../theme/app_text_style.dart';
+import 'package:pos_wiz_tech/core/theme/app_text_style.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 
 class AppSnackBar {
@@ -38,9 +40,26 @@ class AppSnackBar {
       if (overlayEntry.mounted) overlayEntry.remove();
     });
   }
+
+  static Future<void> showSuccessDialog(
+      BuildContext context, {
+        required String title,
+        required String message,
+      }) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => OrderSuccessDialog(title: title, message: message),
+    );
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (context.mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
 }
 
-class _SnackBarWidget extends StatefulWidget {
+class _SnackBarWidget extends StatelessWidget {
   final String? title;
   final String message;
   final SnackBarType type;
@@ -54,88 +73,56 @@ class _SnackBarWidget extends StatefulWidget {
   });
 
   @override
-  State<_SnackBarWidget> createState() => _SnackBarWidgetState();
-}
-
-class _SnackBarWidgetState extends State<_SnackBarWidget> with SingleTickerProviderStateMixin {
-  late AnimationController _shakeController;
-
-  @override
-  void initState() {
-    super.initState();
-    _shakeController = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    if (widget.type == SnackBarType.error) {
-      _shakeController.forward();
-    }
-  }
-
-  double _getShakeOffset(double animationValue) {
-    return sin(animationValue * pi * 3) * 8;
-  }
-
-  @override
-  void dispose() {
-    _shakeController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Color bgColor = widget.type == SnackBarType.error
+    final Color bgColor = type == SnackBarType.error
         ? const Color(0xFF3D1B1B)
-        : (widget.type == SnackBarType.success ? const Color(0xFF1B3922) : Colors.black87);
+        : (type == SnackBarType.success ? const Color(0xFF1B3922) : Colors.black87);
 
-    final IconData icon = widget.type == SnackBarType.error
+    final IconData icon = type == SnackBarType.error
         ? Icons.error_outline
-        : (widget.type == SnackBarType.success ? Icons.check_circle_outline : Icons.info_outline);
+        : (type == SnackBarType.success ? Icons.check_circle_outline : Icons.info_outline);
 
-    return AnimatedBuilder(
-      animation: _shakeController,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(_getShakeOffset(_shakeController.value), 0),
-          child: child,
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: bgColor.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.title != null)
-                    Text(widget.title!, style: AppTextStyles.body.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                  Text(widget.message, style: AppTextStyles.caption.copyWith(color: Colors.white70)),
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.close, color: Colors.white54, size: 18),
-              onPressed: widget.onDismiss,
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: bgColor.withValues(alpha: 0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-    );
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 28)
+            .animate(target: type == SnackBarType.success ? 1 : 0)
+            .scale(duration: 400.ms, curve: Curves.easeOutBack),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                 if (title != null)
+                   Text(title!, style: AppTextStyles.body.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
+                 Text(message, style: AppTextStyles.caption.copyWith(color: Colors.white70)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white54, size: 18),
+            onPressed: onDismiss,
+          ),
+        ],
+      ),
+    )
+    .animate()
+    .slideY(begin: -1, end: 0, duration: 400.ms, curve: Curves.easeOutBack) // Slide down
+    .then(delay: 2500.ms) // Wait
+    .slideY(begin: 0, end: -1, duration: 400.ms, curve: Curves.easeInBack).shake() ;// Slide up to exit
+    // .shake(enabled: type == SnackBarType.error); // Shake on error
   }
 }

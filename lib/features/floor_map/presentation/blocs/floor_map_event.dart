@@ -1,5 +1,4 @@
 part of 'floor_map_bloc.dart';
-// تأكد من المسار الصحيح
 
 abstract class FloorMapEvent extends Equatable {
   const FloorMapEvent();
@@ -19,4 +18,8 @@ class ChangeLocationEvent extends FloorMapEvent {
 
   @override
   List<Object?> get props => [newLocation];
+}
+
+class RefreshTableStatusEvent extends FloorMapEvent {
+  const RefreshTableStatusEvent();
 }

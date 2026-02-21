@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../../core/domain/entities/success_response.dart';
 import '../../../../../core/errors/errors.dart';
 import '../../../domain/entities/user_entity.dart';
 import '../../../domain/usecases/login_usecase.dart';

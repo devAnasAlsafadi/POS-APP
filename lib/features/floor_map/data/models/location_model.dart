@@ -13,5 +13,14 @@ class LocationModel extends LocationEntity {
     );
   }
 
+  LocationEntity toEntity() {
+    return LocationEntity(
+      id: id,
+      locationName: locationName,
+    );
+  }
+
+
+
 
 }

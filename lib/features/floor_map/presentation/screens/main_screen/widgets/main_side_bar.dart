@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/widgets/side_bar_item_widget.dart';
-
 import '../../../../../../core/theme/app_color.dart';
-import '../../../../../../core/utils/app_assets.dart';
 import '../main_screen_controller.dart';
 
 class MainSideBar extends StatelessWidget {
@@ -20,7 +17,8 @@ class MainSideBar extends StatelessWidget {
       padding: const EdgeInsetsDirectional.only(bottom: 0, start: 15, end: 15,top: 20),
       child: ListView(
         children: [
-          CircleAvatar(child:          Icon(Icons.restaurant_rounded,color: AppColors.white,),),
+          CircleAvatar(
+            child: Icon(Icons.restaurant_rounded,color: AppColors.white,),),
           const SizedBox(height: 20),
           _item(Icons.grid_view_rounded, 0, "Floor"),
           _item(Icons.receipt_long_rounded, 1, "Orders"),
