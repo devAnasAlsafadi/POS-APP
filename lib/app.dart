@@ -8,6 +8,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'core/di/injection_container.dart';
 import 'core/routes/app_router.dart';
 import 'core/routes/route_name.dart';
+import 'core/services/pusher_service.dart';
 import 'core/theme/theme.dart';
 import 'core/widgets/offline_screen.dart';
 
@@ -22,6 +23,15 @@ class PosApp extends StatefulWidget {
 }
 
 class _PosAppState extends State<PosApp> {
+
+  void _setupWebSocket() {
+    final String userToken = "TOKEN_FROM_STORAGE";
+    final int userId = 5;
+
+    sl<SocketService>().connect(userToken, userId);
+  }
+
+
   final AppRouter _appRouter = AppRouter();
   @override
   Widget build(BuildContext context) {

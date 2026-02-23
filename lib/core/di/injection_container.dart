@@ -22,6 +22,7 @@ import '../../features/floor_map/domain/usecases/update_table_status.dart';
 import '../../features/floor_map/presentation/blocs/floor_map_bloc.dart';
 
 // Products Feature
+import '../../features/orders/presentation/blocs/orders_bloc/orders_bloc.dart';
 import '../../features/products/data/data_source/products_remote_data_source.dart';
 import '../../features/products/data/repositories/products_repositories_impl.dart';
 import '../../features/products/domain/repositories/products_repositories.dart';
@@ -64,6 +65,7 @@ import '../api/api_consumer.dart';
 import '../api/http_consumer.dart';
 import '../blocs/connectivity/connectivity_bloc.dart';
 import '../network/network_info.dart';
+import '../services/pusher_service.dart';
 
 final sl = GetIt.instance;
 
@@ -78,6 +80,9 @@ Future<void> init() async {
         () => TablesRemoteDataSourceImpl(api: sl()),
   );
 
+  sl.registerLazySingleton<SocketService>(
+        () => SocketService(authLocalDataSource: sl<AuthLocalDataSource>()),
+  );
   //! Features - Products
   sl.registerFactory(() => ProductBloc(getMenuDataUseCase: sl()));
   sl.registerLazySingleton(() => GetMenuDataUseCase(sl()));
@@ -106,6 +111,10 @@ Future<void> init() async {
     serveOrderUseCase: sl(),
     requestBillUseCase: sl(),
     updateTableStatusUseCase: sl(),
+  ));
+  sl.registerFactory(() => OrdersBloc(
+    getOrdersUseCase: sl(),
+    socketService: sl(),
   ));
 
   sl.registerLazySingleton(() => GetOrderByIdUseCase(sl()));

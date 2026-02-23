@@ -4,6 +4,7 @@ import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/widgets/main_mobile_app_bar.dart';
 import 'package:pos_wiz_tech/features/floor_map/presentation/screens/main_screen/widgets/main_side_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pos_wiz_tech/features/orders/presentation/blocs/orders_bloc/orders_bloc.dart';
 import '../../../../../core/di/injection_container.dart';
 import '../../../../reservations/presentation/blocs/reservations_bloc.dart';
 import '../../blocs/floor_map_bloc.dart';
@@ -35,6 +36,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BlocProvider(
             create: (context) => sl<FloorMapBloc>()..add(const FetchTablesEvent()),
+          ),
+          BlocProvider(
+            create: (context) => sl<OrdersBloc>(),
           ),
         ],
         child: LayoutBuilder(builder: (context, constraints) {

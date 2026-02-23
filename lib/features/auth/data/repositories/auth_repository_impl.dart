@@ -25,6 +25,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await remoteDataSource.login(email: email, password: password);
       await localDataSource.cacheToken(response.data!.token);
       await localDataSource.cacheUser(response.data!.name);
+      await localDataSource.cacheUserData(response.data!);
       return Right(SuccessResponse<UserEntity>(
         data: response.data!.toEntity(),
         message: response.message ?? "Logged in successfully",
